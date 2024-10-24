@@ -1,0 +1,9 @@
+---
+title: "Stats 506 PS4"
+author: "Alyssa Yang"
+format: html
+---
+
+**GitHub repo link**: https://github.com/alyssawyang/stats506ps4
+
+# Problem 1: Tidyverse
