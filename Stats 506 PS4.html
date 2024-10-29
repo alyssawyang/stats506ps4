@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -72,6 +106,193 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>GitHub repo link</strong>: https://github.com/alyssawyang/stats506ps4</p>
 <section id="problem-1-tidyverse" class="level1">
 <h1>Problem 1: Tidyverse</h1>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nycflights13)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressMessages</span>(<span class="fu">library</span>(dplyr))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># View(flights)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="a" class="level2">
+<h2 class="anchored" data-anchor-id="a">1a</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Departure delays</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">mean_dep_delay =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">median_dep_delay =</span> <span class="fu">median</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">num_flights =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(num_flights <span class="sc">&gt;=</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">faa =</span> origin) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(airports, <span class="at">by =</span> <span class="st">"faa"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(mean_dep_delay)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(name, mean_dep_delay, median_dep_delay) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  name                mean_dep_delay median_dep_delay
+  &lt;chr&gt;                        &lt;dbl&gt;            &lt;dbl&gt;
+1 Newark Liberty Intl           15.1               -1
+2 John F Kennedy Intl           12.1               -1
+3 La Guardia                    10.3               -3</code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrival delays</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(dest) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">mean_arr_delay =</span> <span class="fu">mean</span>(arr_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">median_arr_delay =</span> <span class="fu">median</span>(arr_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">num_flights =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(num_flights <span class="sc">&gt;=</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">faa =</span> dest) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(airports, <span class="at">by =</span> <span class="st">"faa"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name =</span> <span class="fu">coalesce</span>(name, faa)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(mean_arr_delay)) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(name, mean_arr_delay, median_arr_delay) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="fu">count</span>(.))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 102 × 3
+    name                                   mean_arr_delay median_arr_delay
+    &lt;chr&gt;                                           &lt;dbl&gt;            &lt;dbl&gt;
+  1 "Columbia Metropolitan"                       41.8                28  
+  2 "Tulsa Intl"                                  33.7                14  
+  3 "Will Rogers World"                           30.6                16  
+  4 "Jackson Hole Airport"                        28.1                15  
+  5 "Mc Ghee Tyson"                               24.1                 2  
+  6 "Dane Co Rgnl Truax Fld"                      20.2                 1  
+  7 "Richmond Intl"                               20.1                 1  
+  8 "Akron Canton Regional Airport"               19.7                 3  
+  9 "Des Moines Intl"                             19.0                 0  
+ 10 "Gerald R Ford Intl"                          18.2                 1  
+ 11 "Birmingham Intl"                             16.9                -2  
+ 12 "Theodore Francis Green State"                16.2                 1  
+ 13 "Greenville-Spartanburg International"        15.9                -0.5
+ 14 "Cincinnati Northern Kentucky Intl"           15.4                -3  
+ 15 "Savannah Hilton Head Intl"                   15.1                -1  
+ 16 "Manchester Regional Airport"                 14.8                -3  
+ 17 "Eppley Afld"                                 14.7                -2  
+ 18 "Yeager"                                      14.7                -1.5
+ 19 "Kansas City Intl"                            14.5                 0  
+ 20 "Albany Intl"                                 14.4                -4  
+ 21 "General Mitchell Intl"                       14.2                 0  
+ 22 "Piedmont Triad"                              14.1                -2  
+ 23 "Washington Dulles Intl"                      13.9                -3  
+ 24 "Cherry Capital Airport"                      13.0               -10  
+ 25 "James M Cox Dayton Intl"                     12.7                -3  
+ 26 "Louisville International Airport"            12.7                -2  
+ 27 "Chicago Midway Intl"                         12.4                -1  
+ 28 "Sacramento Intl"                             12.1                 4  
+ 29 "Jacksonville Intl"                           11.8                -2  
+ 30 "Nashville Intl"                              11.8                -2  
+ 31 "Portland Intl Jetport"                       11.7                -4  
+ 32 "Greater Rochester Intl"                      11.6                -5  
+ 33 "Hartsfield Jackson Atlanta Intl"             11.3                -1  
+ 34 "Lambert St Louis Intl"                       11.1                -3  
+ 35 "Norfolk Intl"                                10.9                -4  
+ 36 "Baltimore Washington Intl"                   10.7                -5  
+ 37 "Memphis Intl"                                10.6                -2.5
+ 38 "Port Columbus Intl"                          10.6                -3  
+ 39 "Charleston Afb Intl"                         10.6                -4  
+ 40 "Philadelphia Intl"                           10.1                -3  
+ 41 "Raleigh Durham Intl"                         10.1                -3  
+ 42 "Indianapolis Intl"                            9.94               -3  
+ 43 "Charlottesville-Albemarle"                    9.5                -5  
+ 44 "Cleveland Hopkins Intl"                       9.18               -5  
+ 45 "Ronald Reagan Washington Natl"                9.07               -2  
+ 46 "Burlington Intl"                              8.95               -4  
+ 47 "Buffalo Niagara Intl"                         8.95               -5  
+ 48 "Syracuse Hancock Intl"                        8.90               -5  
+ 49 "Denver Intl"                                  8.61               -2  
+ 50 "Palm Beach Intl"                              8.56               -3  
+ 51 "BQN"                                          8.25               -1  
+ 52 "Bob Hope"                                     8.18               -3  
+ 53 "Fort Lauderdale Hollywood Intl"               8.08               -3  
+ 54 "Bangor Intl"                                  8.03               -9  
+ 55 "Asheville Regional Airport"                   8.00               -1  
+ 56 "PSE"                                          7.87                0  
+ 57 "Pittsburgh Intl"                              7.68               -5  
+ 58 "Gallatin Field"                               7.6                -2  
+ 59 "NW Arkansas Regional"                         7.47               -2  
+ 60 "Tampa Intl"                                   7.41               -4  
+ 61 "Charlotte Douglas Intl"                       7.36               -3  
+ 62 "Minneapolis St Paul Intl"                     7.27               -5  
+ 63 "William P Hobby"                              7.18               -4  
+ 64 "Bradley Intl"                                 7.05              -10  
+ 65 "San Antonio Intl"                             6.95               -9  
+ 66 "South Bend Rgnl"                              6.5                -3.5
+ 67 "Louis Armstrong New Orleans Intl"             6.49               -6  
+ 68 "Key West Intl"                                6.35                7  
+ 69 "Eagle Co Rgnl"                                6.30               -4  
+ 70 "Austin Bergstrom Intl"                        6.02               -5  
+ 71 "Chicago Ohare Intl"                           5.88               -8  
+ 72 "Orlando Intl"                                 5.45               -5  
+ 73 "Detroit Metro Wayne Co"                       5.43               -7  
+ 74 "Portland Intl"                                5.14               -5  
+ 75 "Nantucket Mem"                                4.85               -3  
+ 76 "Wilmington Intl"                              4.64               -7  
+ 77 "Myrtle Beach Intl"                            4.60              -13  
+ 78 "Albuquerque International Sunport"            4.38               -5.5
+ 79 "George Bush Intercontinental"                 4.24               -5  
+ 80 "Norman Y Mineta San Jose Intl"                3.45               -7  
+ 81 "Southwest Florida Intl"                       3.24               -5  
+ 82 "San Diego Intl"                               3.14               -5  
+ 83 "Sarasota Bradenton Intl"                      3.08               -5  
+ 84 "Metropolitan Oakland Intl"                    3.08               -9  
+ 85 "General Edward Lawrence Logan Intl"           2.91               -9  
+ 86 "San Francisco Intl"                           2.67               -8  
+ 87 "SJU"                                          2.52               -6  
+ 88 "Yampa Valley"                                 2.14                2  
+ 89 "Phoenix Sky Harbor Intl"                      2.10               -6  
+ 90 "Montrose Regional Airport"                    1.79              -10.5
+ 91 "Los Angeles Intl"                             0.547              -7  
+ 92 "Dallas Fort Worth Intl"                       0.322              -9  
+ 93 "Miami Intl"                                   0.299              -9  
+ 94 "Mc Carran Intl"                               0.258              -8  
+ 95 "Salt Lake City Intl"                          0.176              -8  
+ 96 "Long Beach"                                  -0.0620            -10  
+ 97 "Martha\\\\'s Vineyard"                       -0.286             -11  
+ 98 "Seattle Tacoma Intl"                         -1.10              -11  
+ 99 "Honolulu Intl"                               -1.37               -7  
+100 "STT"                                         -3.84               -9  
+101 "John Wayne Arpt Orange Co"                   -7.87              -11  
+102 "Palm Springs Intl"                          -12.7               -13.5</code></pre>
+</div>
+</div>
+</section>
+<section id="b" class="level2">
+<h2 class="anchored" data-anchor-id="b">1b</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the number of flights the aircraft model with the fastest average speed took</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(planes, <span class="at">by =</span> <span class="st">"tailnum"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mph =</span> distance <span class="sc">/</span> (air_time <span class="sc">/</span> <span class="dv">60</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(model) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">avg_mph =</span> <span class="fu">mean</span>(mph),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">num_flights =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(avg_mph)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  model   avg_mph num_flights
+  &lt;chr&gt;     &lt;dbl&gt;       &lt;int&gt;
+1 777-222    483.           4</code></pre>
+</div>
+</div>
+</section>
 </section>
 
 </main>

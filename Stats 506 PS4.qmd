@@ -1,9 +1,82 @@
 ---
 title: "Stats 506 PS4"
 author: "Alyssa Yang"
-format: html
+format: 
+  html:
+    code-fold: true
 ---
 
 **GitHub repo link**: https://github.com/alyssawyang/stats506ps4
 
 # Problem 1: Tidyverse
+```{r}
+library(nycflights13)
+suppressMessages(library(dplyr))
+
+# View(flights)
+```
+
+
+## 1a
+```{r}
+# Departure delays
+flights %>%
+  group_by(origin) %>% 
+  summarize(mean_dep_delay = mean(dep_delay, na.rm = TRUE),
+            median_dep_delay = median(dep_delay, na.rm = TRUE),
+            num_flights = n()) %>% 
+  ungroup() %>% 
+  filter(num_flights >= 10) %>% 
+  rename(faa = origin) %>% 
+  left_join(airports, by = "faa") %>%
+  arrange(desc(mean_dep_delay)) %>% 
+  select(name, mean_dep_delay, median_dep_delay) 
+```
+
+```{r}
+# Arrival delays
+flights %>%
+  group_by(dest) %>% 
+  summarize(mean_arr_delay = mean(arr_delay, na.rm = TRUE),
+            median_arr_delay = median(arr_delay, na.rm = TRUE),
+            num_flights = n()) %>% 
+  ungroup() %>% 
+  filter(num_flights >= 10) %>% 
+  rename(faa = dest) %>% 
+  left_join(airports, by = "faa") %>%
+  mutate(name = coalesce(name, faa)) %>%
+  arrange(desc(mean_arr_delay)) %>% 
+  select(name, mean_arr_delay, median_arr_delay) %>% 
+  print(n = count(.))
+```
+
+
+## 1b
+```{r}
+# Find the number of flights the aircraft model with the fastest average speed took
+flights %>% 
+  left_join(planes, by = "tailnum") %>% 
+  mutate(mph = distance / (air_time / 60)) %>% 
+  group_by(model) %>% 
+  summarize(avg_mph = mean(mph),
+            num_flights = n()) %>% 
+  ungroup() %>%
+  arrange(desc(avg_mph)) %>% 
+  slice(1)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
