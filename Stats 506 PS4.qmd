@@ -66,6 +66,98 @@ flights %>%
 ```
 
 
+# Problem 2: get_temp()
+## 2a
+```{r}
+# Load in Chicago NNMAPS data 
+nnmaps <- read.csv("chicago-nmmaps.csv")
+# View(nnmaps)
+```
+
+```{r}
+#' Function that finds average monthly temperature
+#'
+#' @param month Month, either a numeric 1-12 or a string
+#' @param year A numeric year
+#' @param data The data set to obtain data from
+#' @param celsius Logically indicating whether the results should be in celsius. Default FALSE
+#' @param average_fn A function with which to compute the mean. Default is mean
+#'
+#' @return Average temperature as a numeric vector of length 1 
+get_temp <- function(month, year, data, celsius = FALSE, average_fn = mean) {
+  # Check if month is a valid month
+  if (month %>% is.numeric) {
+    if (month < 1 | month > 12) {
+      warning("Month is not valid")
+      return(NA)
+    }
+  }
+  else if (month %>% is.character) {
+    months <- c("January", "February", "March", "April", "May", "June", "July",
+                "August", "September", "October", "November", "December")
+    month <- month %>% match.arg(months)
+    month <- month %>% match(months)
+  }
+  else {
+    warning("Month must be a valid numeric or character")
+    return(NA)
+  }
+  
+  # Check if year is a valid year
+  if (!(year %>% is.numeric)) {
+    warning("Year must be numeric")
+    return(NA)
+  }
+  if (year < 1997 | year > 2000) {
+    warning("Year is not valid")
+    return(NA)
+  }
+  
+  # Check if function is a valid function
+   if (!(average_fn %>% is.function)) {
+    warning("Average_fn must be a function")
+     return(NA)
+   }
+  
+  # If celsius is true, convert from F to C
+  if (celsius == TRUE) {
+    data <- data %>% 
+      mutate(temp = (temp - 32) * (5/9))
+  }
+
+  # Find and return average monthly temperature
+  avg <- data %>% 
+    select(year, month_numeric, temp) %>% 
+    rename(year_data = year) %>% 
+    filter(year_data == year,
+           month_numeric == month) %>% 
+    summarize(average_fn(temp))
+    
+  return(avg)
+}
+```
+
+```{r}
+#| code-fold: false
+# Evaluate code
+get_temp("Apr", 1999, data = nnmaps)
+get_temp("Apr", 1999, data = nnmaps, celsius = TRUE)
+get_temp(10, 1998, data = nnmaps, average_fn = median)
+get_temp(13, 1998, data = nnmaps)
+get_temp(2, 2005, data = nnmaps)
+get_temp("November", 1999, data =nnmaps, celsius = TRUE,
+         average_fn = function(x) {
+           x %>% sort -> x
+           x[2:(length(x) - 1)] %>% mean %>% return
+         })
+```
+
+
+
+
+
+
+
 
 
 
