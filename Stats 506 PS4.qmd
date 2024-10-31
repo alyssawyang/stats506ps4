@@ -2,7 +2,7 @@
 title: "Stats 506 PS4"
 author: "Alyssa Yang"
 format: 
-  html:
+  pdf:
     code-fold: true
 ---
 
@@ -57,7 +57,7 @@ flights %>%
 
 ## 1b
 ```{r}
-# Find the number of flights the aircraft model with the fastest average speed took
+# Find number of flights the aircraft model with the fastest average speed has
 flights %>% 
   left_join(planes, by = "tailnum") %>% 
   mutate(mph = distance / (air_time / 60)) %>% 
@@ -84,7 +84,8 @@ nnmaps <- read.csv("chicago-nmmaps.csv")
 #' @param month Month, either a numeric 1-12 or a string
 #' @param year A numeric year
 #' @param data The data set to obtain data from
-#' @param celsius Logically indicating whether the results should be in celsius. Default FALSE
+#' @param celsius Logically indicating whether the results should be in celsius. 
+#'        Default is FALSE
 #' @param average_fn A function with which to compute the mean. Default is mean
 #'
 #' @return Average temperature as a numeric vector of length 1 
@@ -175,8 +176,8 @@ summary(art_sales$price_usd)
 ```{r}
 # Plot sales price over the years
 ggplot(art_sales, aes(x = year, y = price_usd)) +
-  geom_point(alpha = 0.5) + # Scatter plot for individual sales
-  geom_smooth(method = "loess", color = "blue", fill = "lightblue") + # Smoothed line
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", color = "blue", fill = "lightblue") +
   labs(title = "Sales Price (USD) Over Time",
        x = "Year",
        y = "Sales Price in USD") +
@@ -210,7 +211,9 @@ genre_dist <- art_sales_genres %>%
 # Plot genre distribution across years
 ggplot(genre_dist, aes(x = year, y = proportion, fill = genre)) +
   geom_area(alpha = 0.75, size = 0.5, color = "white") +
-  labs(title = "Distribution of Genre of Sales Across Years", x = "Year", y = "Proportion of Sales")
+  labs(title = "Distribution of Genre of Sales Across Years", 
+       x = "Year", 
+       y = "Proportion of Sales")
 
 ```
 From the graph, we can see that the distribution of genre of sales did change quite a bit from 1997 to 2004, but after 2004, the distribution has stayed relatively constant. People only started selling prints in 2000, and sculpture and photography gained popularity whereas painting and others decreased in popularity until around 2004. After 2004, photography and sculpture remain the most popular genre of art sales, and print, painting, and others are not as popular.
