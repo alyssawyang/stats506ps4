@@ -12,8 +12,12 @@ format:
 ```{r}
 library(nycflights13)
 suppressMessages(library(dplyr))
+library(tidyr)
+library(stringr)
+library(ggplot2)
 
 # View(flights)
+# View(planes)
 ```
 
 
@@ -67,7 +71,6 @@ flights %>%
 
 
 # Problem 2: get_temp()
-## 2a
 ```{r}
 # Load in Chicago NNMAPS data 
 nnmaps <- read.csv("chicago-nmmaps.csv")
@@ -75,6 +78,7 @@ nnmaps <- read.csv("chicago-nmmaps.csv")
 ```
 
 ```{r}
+#| code-fold: false
 #' Function that finds average monthly temperature
 #'
 #' @param month Month, either a numeric 1-12 or a string
@@ -152,6 +156,93 @@ get_temp("November", 1999, data =nnmaps, celsius = TRUE,
          })
 ```
 
+
+# Problem 3: Visualization
+```{r}
+# Read in art sales dataset
+art_sales <- read.csv("df_for_ml_improved_new_market.csv")
+
+# View(art_sales)
+```
+
+
+## 3a: Is there a change in the sales price in USD over time?
+```{r}
+# Look at summary to help determine axis bounds for sales prices
+summary(art_sales$price_usd)
+```
+
+```{r}
+# Plot sales price over the years
+ggplot(art_sales, aes(x = year, y = price_usd)) +
+  geom_point(alpha = 0.5) + # Scatter plot for individual sales
+  geom_smooth(method = "loess", color = "blue", fill = "lightblue") + # Smoothed line
+  labs(title = "Sales Price (USD) Over Time",
+       x = "Year",
+       y = "Sales Price in USD") +
+  ylim(0, 100000)
+```
+From the graph, we can see that there has been a change in Sales Price (USD) over time which may be due to factors such as a growing demand in the market or other broader economic factors. The range of sales prices has increased over time with more art pieces being a lot more expensive than in earlier years. I added a LOESS smoothing line in order to capture the overall trend of sales prices, and we can see that the prices gradually increased until around 2008 when it started slightly falling again. 
+
+I chose to include only sales prices from \$0 to \$100,000 in order to better visualize the trend - by excluding some very high-priced outliers, this range helps to highlight the general patterns of sales prices more.
+
+
+## 3b: Does the distribution of genre of sales across years appear to change?
+```{r}
+# Collapse genre columns into one column
+art_sales_genres <- art_sales %>%
+  pivot_longer(cols = starts_with("Genre___"),
+               names_to = "genre",
+               values_to = "count") 
+
+# Rename genre values and select relevant columns
+art_sales_genres <- art_sales_genres %>%
+  mutate(genre = str_remove(genre, "Genre___")) %>% 
+  filter(count > 0) %>% 
+  select(year, genre)
+
+# Calculate proportions of genre of sales across years
+genre_dist <- art_sales_genres %>%
+  group_by(year, genre) %>%
+  summarize(num_sales = n()) %>%
+  mutate(proportion = num_sales / sum(num_sales))
+
+# Plot genre distribution across years
+ggplot(genre_dist, aes(x = year, y = proportion, fill = genre)) +
+  geom_area(alpha = 0.75, size = 0.5, color = "white") +
+  labs(title = "Distribution of Genre of Sales Across Years", x = "Year", y = "Proportion of Sales")
+
+```
+From the graph, we can see that the distribution of genre of sales did change quite a bit from 1997 to 2004, but after 2004, the distribution has stayed relatively constant. People only started selling prints in 2000, and sculpture and photography gained popularity whereas painting and others decreased in popularity until around 2004. After 2004, photography and sculpture remain the most popular genre of art sales, and print, painting, and others are not as popular.
+
+
+## 3c: How does the genre affect the change in sales price over time?
+```{r}
+# Collapse genre columns into one column
+art_sales_genres <- art_sales %>%
+  pivot_longer(cols = starts_with("Genre___"),
+               names_to = "genre",
+               values_to = "count") 
+
+# Rename genre values and select relevant columns
+art_sales_genres <- art_sales_genres %>%
+  mutate(genre = str_remove(genre, "Genre___")) %>% 
+  filter(count > 0) %>% 
+  select(year, genre, price_usd)
+
+# Calculate average sales price by year and genre
+avg_price_genre <- art_sales_genres %>%
+  group_by(year, genre) %>%
+  summarize(avg_sales_price = mean(price_usd, na.rm = TRUE))
+
+# Plot price change over time by genre
+ggplot(avg_price_genre, aes(x = year, y = avg_sales_price, color = genre)) +
+  geom_line(size = 1) +
+  labs(title = "Change in Sales Price Over Time by Genre",
+       x = "Year",
+       y = "Average Sales Price in USD")
+```
+From the graph, we can see that over time, different genres have had different average sales prices. We can see that the average sales price for painting and others genres have stayed almost identical to each other across the years with sculpture following a similar trend. However, with sculpture, it didn't have as high of a peak of average salary as the other genres in 2008 and has consistently remained quite low. Since it's arrival in 2000, prints' average sales prices have fluctuated drastically, sometimes being the highest average sales price genre and sometimes being the lowest. Photography started out having a similar average sales price as painting, others, and sculpture, but has since increased drastically from around 2004. Since around 2005, it has had the highest average sales price compared to all other genres by a significant margin, and since 2010, all other genres have had around the same average sales price.
 
 
 
